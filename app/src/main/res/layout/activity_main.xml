@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/colorPrimaryDark"
+    android:padding="16dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+
+
+
+
+
+    <!-- 播放进度条 start -->
+    <LinearLayout
+        android:id="@+id/ll_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="45dp"
+        app:layout_constraintBottom_toTopOf="@+id/cl_play_controls"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/text_view_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/colorAccent"
+            android:textSize="12sp"
+            android:singleLine="true"
+            android:text="00:00"
+            />
+
+        <SeekBar
+            android:id="@+id/seek_bar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:max="10000"
+            />
+
+        <TextView
+            android:id="@+id/text_view_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/colorAccent"
+            android:textSize="12sp"
+            android:singleLine="true"
+            android:text="00:00"
+            />
+    </LinearLayout>
+    <!-- 播放进度条 end -->
+
+
+
+    <!-- 播放控制 start -->
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/cl_play_controls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+
+
+        <ImageView
+            android:id="@+id/iv_play_mode_toggle"
+            android:src="@drawable/ic_play_mode_loop"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/iv_play_last"
+            android:layout_width="35dp"
+            android:layout_height="35dp" />
+
+        <ImageView
+            android:id="@+id/iv_play_last"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            app:layout_constraintLeft_toRightOf="@+id/iv_play_mode_toggle"
+            app:layout_constraintRight_toLeftOf="@+id/iv_play_toggle"
+            android:src="@drawable/ic_skip_previous_notif" />
+
+        <ImageView
+            android:id="@+id/iv_play_toggle"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            app:layout_constraintLeft_toRightOf="@+id/iv_play_last"
+            app:layout_constraintRight_toLeftOf="@+id/iv_play_next"
+            android:src="@drawable/ic_play_notif"
+            />
+
+        <ImageView
+            android:id="@+id/iv_play_next"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:src="@drawable/ic_skip_next_notif"
+            app:layout_constraintLeft_toRightOf="@+id/iv_play_toggle"
+            app:layout_constraintRight_toLeftOf="@+id/iv_favorite_toggle"/>
+
+        <ImageView
+            android:id="@+id/iv_favorite_toggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="center"
+            android:src="@drawable/ic_heart_filled_1"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@+id/iv_play_next"
+            app:layout_constraintRight_toRightOf="parent"/>
+
+
+    </android.support.constraint.ConstraintLayout>
+    <!-- 播放控制 end -->
+
+</android.support.constraint.ConstraintLayout>
