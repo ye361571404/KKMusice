@@ -267,9 +267,9 @@ public class PlaybackService extends Service implements IPlayback, IPlayback.Cal
     }
 
     private void setUpRemoteView(RemoteViews remoteView) {
-        remoteView.setImageViewResource(R.id.image_view_close, R.drawable.ic_remote_view_close);
+        /*remoteView.setImageViewResource(R.id.image_view_close, R.drawable.ic_remote_view_close);
         remoteView.setImageViewResource(R.id.image_view_play_last, R.drawable.ic_remote_view_play_last);
-        remoteView.setImageViewResource(R.id.image_view_play_next, R.drawable.ic_remote_view_play_next);
+        remoteView.setImageViewResource(R.id.image_view_play_next, R.drawable.ic_remote_view_play_next);*/
 
         remoteView.setOnClickPendingIntent(R.id.button_close, getPendingIntent(ACTION_STOP_SERVICE));
         remoteView.setOnClickPendingIntent(R.id.button_play_last, getPendingIntent(ACTION_PLAY_LAST));
@@ -285,14 +285,13 @@ public class PlaybackService extends Service implements IPlayback, IPlayback.Cal
         }
         remoteView.setImageViewResource(R.id.image_view_play_toggle, isPlaying()
                 ? R.drawable.ic_remote_view_pause : R.drawable.ic_remote_view_play);
-        AudioDecorator audioDecorator = getPlayingSong();
+        /*AudioDecorator audioDecorator = getPlayingSong();
         Bitmap album = AlbumUtils.parseAlbum(audioDecorator);
         if (album == null) {
             remoteView.setImageViewResource(R.id.image_view_album, R.mipmap.ic_launcher);
         } else {
             remoteView.setImageViewBitmap(R.id.image_view_album, album);
-
-        }
+        }*/
     }
 
     // PendingIntent

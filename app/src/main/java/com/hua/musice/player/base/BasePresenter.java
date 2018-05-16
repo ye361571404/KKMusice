@@ -9,7 +9,13 @@ package com.hua.musice.player.base;
  */
 public interface BasePresenter {
 
-    void subscribe();
+    /**
+     * 绑定
+     */
+    void attachView();
 
-    void unsubscribe();
+    /**
+     * 解绑
+     */
+    void detachView();
 }

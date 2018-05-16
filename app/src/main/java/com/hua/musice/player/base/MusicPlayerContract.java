@@ -4,21 +4,14 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.hua.musice.player.bean.AudioDecorator;
+import com.hua.musice.player.bean.PlayList;
 import com.hua.musice.player.bean.PlayMode;
+import com.hua.musice.player.bean.Song;
 import com.hua.musice.player.service.PlaybackService;
 
-
-/**
- * Created with Android Studio.
- * User: ryan.hoo.j@gmail.com
- * Date: 9/12/16
- * Time: 8:27 AM
- * Desc: MusicPlayerContract
- */
-/* package */
 public interface MusicPlayerContract {
 
-    interface View extends BaseView<Presenter> {
+    interface MainView extends BaseView<Presenter> {
 
         void handleError(Throwable error);
 
@@ -50,10 +43,14 @@ public interface MusicPlayerContract {
         void updatePlayToggle(boolean play);
 
         void updateFavoriteToggle(boolean favorite);
+
     }
 
     interface Presenter extends BasePresenter {
 
+        /**
+         * 恢复上一次的播放模式
+         */
         void retrieveLastPlayMode();
 
         void setSongAsFavorite(AudioDecorator song, boolean favorite);
@@ -67,5 +64,15 @@ public interface MusicPlayerContract {
          * 解绑服务
          */
         void unbindPlaybackService();
+
+        /**
+         * 获取歌曲列表
+         */
+        void getPlayList();
+
+        /**
+         * 设置播放模式
+         */
+        void onPlayModeToggleAction();
     }
 }

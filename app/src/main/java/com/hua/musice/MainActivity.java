@@ -1,10 +1,10 @@
 package com.hua.musice;
 
 import android.content.Context;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,43 +12,35 @@ import android.support.annotation.StringRes;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.hua.musice.player.base.IPlayback;
 import com.hua.musice.player.base.MusicPlayerContract;
 import com.hua.musice.player.bean.AudioDecorator;
 import com.hua.musice.player.bean.BaseAudio;
-import com.hua.musice.player.bean.ExhibitBean;
-import com.hua.musice.player.bean.PlayList;
 import com.hua.musice.player.bean.PlayMode;
-import com.hua.musice.player.bean.Song;
 import com.hua.musice.player.permission.DefaultRationale;
 import com.hua.musice.player.permission.PermissionSetting;
 import com.hua.musice.player.present.MusicPresentImpl;
 import com.hua.musice.player.service.PlaybackService;
-import com.hua.musice.player.utils.AssetsUtil;
-import com.hua.musice.player.utils.PreferenceManager;
 import com.hua.musice.player.utils.TimeUtils;
 import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.Permission;
 import com.yanzhenjie.permission.Rationale;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements
-        MusicPlayerContract.View,IPlayback.Callback,
+        MusicPlayerContract.MainView,IPlayback.Callback,
         View.OnClickListener,
         AudioManager.OnAudioFocusChangeListener {
 
-    private final String audioBaseUrl = "http://39.107.90.144:8081/guidersrv/SystekGuiderData/ScenicSpotData/audio/";
     private final long UPDATE_PROGRESS_INTERVAL = 1000;
 
     private LinearLayout llProgress;
@@ -61,13 +53,13 @@ public class MainActivity extends AppCompatActivity implements
     private ImageView ivPlayToggle;
     private ImageView ivPlayNext;
     private ImageView ivFavoriteToggle;
+    private Button btnOpen;
 
     private Rationale mRationale;
     private PermissionSetting mSetting;
 
     private MusicPlayerContract.Presenter mPresenter;
     private IPlayback mPlayerService;
-    private PlayList<Song> playList;
     private Handler mHandler = new Handler();
     private Runnable mProgressCallback = new Runnable() {
         @Override
@@ -110,44 +102,21 @@ public class MainActivity extends AppCompatActivity implements
         ivPlayToggle = findViewById(R.id.iv_play_toggle);
         ivPlayNext = findViewById(R.id.iv_play_next);
         ivFavoriteToggle = findViewById(R.id.iv_favorite_toggle);
+        btnOpen = findViewById(R.id.btn_open);
         // 申请权限
         requestPermission(Permission.Group.STORAGE);
     }
 
     private void initData() {
+        // 权限相关变量
         mRationale = new DefaultRationale();
         mSetting = new PermissionSetting(this);
-        playList = new PlayList();
 
-        String json = AssetsUtil.readFile("data.txt");
-        Gson gson = new Gson();
-        ExhibitBean exhibit = gson.fromJson(json, ExhibitBean.class);
-        List<ExhibitBean.DataBean> exhibitData = exhibit.getData();
-
-        List<AudioDecorator<Song>> audioDecoratorList = new ArrayList<>();
-        AudioDecorator<Song> audioDecorator = null;
-        Song song = null;
-        // 获取 /storage/emulated/0/Music 目录下的音乐(添加读取SD卡权限)
-        File directory = Environment.getExternalStoragePublicDirectory("Music");
-        File audioFile = null;
-        for (int i = 0; i < exhibitData.size(); i++) {
-            ExhibitBean.DataBean bean = exhibitData.get(i);
-            song = new Song();
-            song.setTitle(bean.getName());
-            audioFile = new File(directory.getAbsolutePath(), bean.getAudio_url());
-            song.setPath(audioFile.getAbsolutePath());
-            // song.setDuration(FileUtil.getAudioDuration(audioFile));
-            audioDecorator = new AudioDecorator<>(song);
-            audioDecoratorList.add(audioDecorator);
-        }
-        playList.setSongs(audioDecoratorList);
-
-        // 绑定服务
-        new MusicPresentImpl(this, this).subscribe();
+        mPresenter = new MusicPresentImpl(this, this);
+        mPresenter.attachView();
     }
 
     private void setListener() {
-
         ivPlayToggle.setOnClickListener(this);
         ivPlayLast.setOnClickListener(this);
         ivPlayNext.setOnClickListener(this);
@@ -174,10 +143,18 @@ public class MainActivity extends AppCompatActivity implements
                 }
             }
         });
+
+        btnOpen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, MediaPlayByUrlActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     /**
-     * 切换下一首回调
+     * 切换下一首
      * @param next
      */
     @Override
@@ -190,6 +167,10 @@ public class MainActivity extends AppCompatActivity implements
         onSongUpdated(next);
     }
 
+    /**
+     * 更新播放状态
+     * @param isPlaying
+     */
     @Override
     public void onPlayStatusChanged(boolean isPlaying) {
         updatePlayToggle(isPlaying);
@@ -216,8 +197,9 @@ public class MainActivity extends AppCompatActivity implements
     public void onPlaybackServiceBound(PlaybackService service) {
         mPlayerService = service;
         mPlayerService.registerCallback(this);
-        mPlayerService.setPlayList(playList);
+        mPresenter.getPlayList();
     }
+
 
     /**
      * 解绑服务
@@ -233,6 +215,10 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
+    /**
+     * 初始化播放进度
+     * @param song
+     */
     @Override
     public void onSongUpdated(@Nullable AudioDecorator song) {
         if (song == null) {
@@ -287,6 +273,10 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
+    /**
+     * 更新播放状态
+     * @param play
+     */
     @Override
     public void updatePlayToggle(boolean play) {
         if(play){
@@ -300,14 +290,11 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
-    @Override
-    public void setPresenter(MusicPlayerContract.Presenter presenter) {
-        mPresenter = presenter;
-    }
+
 
     @Override
     protected void onDestroy() {
-        mPresenter.unsubscribe();
+        mPresenter.detachView();
         super.onDestroy();
     }
 
@@ -386,7 +373,7 @@ public class MainActivity extends AppCompatActivity implements
                 break;
             case R.id.iv_play_mode_toggle:
                 // 播放模式
-                onPlayModeToggleAction();
+                mPresenter.onPlayModeToggleAction();
                 break;
         }
     }
@@ -421,21 +408,6 @@ public class MainActivity extends AppCompatActivity implements
         }
         mPlayerService.playNext();
         Toast.makeText(this, "下一首", Toast.LENGTH_SHORT).show();
-    }
-
-
-    /** 设置播放模式 **/
-    public void onPlayModeToggleAction() {
-        if (mPlayerService == null){
-            return;
-        }
-        // 获取当前模式
-        PlayMode current = PreferenceManager.lastPlayMode(this);
-        // 切换下一个模式
-        PlayMode newMode = PlayMode.switchNextMode(current);
-        PreferenceManager.setPlayMode(this, newMode);
-        mPlayerService.setPlayMode(newMode);
-        updatePlayMode(newMode);
     }
 
     /**

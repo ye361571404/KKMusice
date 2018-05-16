@@ -1,5 +1,6 @@
 package com.hua.musice.player.features;
 
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -74,6 +75,7 @@ public class Player implements IPlayback, MediaPlayer.OnCompletionListener {
             try {
                 mPlayer.reset();
                 String audioPath = song.getAudio().getAudioPath();
+                mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
                 mPlayer.setDataSource(audioPath);
                 mPlayer.prepare();
                 mPlayer.start();
